@@ -34,7 +34,7 @@ def receive_data():
     top_k=int(data["top_k"])
 
     t1=time.time()
-    question_pipeline=RagPipeline(pre_retrieval_options=pre_retrieval_option,retrieval_options=retrieval_option,post_retrieval_options=post_retrieval_option,post_retrieval_type=post_retrieval_type,generation_options=generation_option,index=index,top_k_retriever=1)
+    question_pipeline=RagPipeline(pre_retrieval_options=pre_retrieval_option,retrieval_options=retrieval_option,post_retrieval_options=post_retrieval_option,post_retrieval_type=post_retrieval_type,generation_options=generation_option,index=index,top_k_retriever=top_k)
     results=question_pipeline.run(question)
     t2=time.time()
 
@@ -49,7 +49,7 @@ def send_data():
     return jsonify(data)
 
 if __name__=='__main__':
-    index="sentence"
+    index="sentence_10_5_dot_product"
 
     #app.run(debug=True,port=5000,host='0.0.0.0')
     

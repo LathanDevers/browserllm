@@ -19,7 +19,7 @@ class RagPipeline:
         post_retrieval_type : \n
         generation_options : 
     """
-    def __init__(self,pre_retrieval_options=None,retrieval_options="embeddings",post_retrieval_options=[],post_retrieval_type={},generation_options="mixtral",hosts="http://localhost:9200",index="sentence",top_k_retriever=10):
+    def __init__(self,pre_retrieval_options=None,retrieval_options="embeddings",post_retrieval_options=[],post_retrieval_type={},generation_options="mixtral",hosts="http://192.168.2.179:9200",index="sentence",top_k_retriever=10):
         self.pre_retrieval_options=pre_retrieval_options
         self.retrieval_options=retrieval_options
         self.post_retrieval_options=post_retrieval_options
@@ -63,6 +63,9 @@ class RagPipeline:
         self.answer=None
 
         self.document_store=ElasticsearchDocumentStore(hosts=self.hosts,index=self.index)
+
+        if self.generation_options=="mixtral":
+            self.model_name="./models/mistral-7b-instruct-v0.2.Q4_K_M.gguf"
 
         self.create_pre_retrieval_components()
         self.create_retrieval_components()
@@ -117,7 +120,7 @@ class RagPipeline:
     def create_post_retrieval_components(self):
         self.from_post_retrieval=self.from_retriever
         if "summary" in self.post_retrieval_options:
-            self.summarizer=Summarizer()
+            self.summarizer=Summarizer(model_name=self.model_name)
             self.pipeline.add_component(name="summarizer",instance=self.summarizer)
 
             self.to_summarizer="summarizer.documents"
@@ -172,15 +175,14 @@ class RagPipeline:
 
         self.pipeline.connect(sender=self.from_post_retrieval,receiver=self.to_generator_prompt_builder)
 
-        if self.generation_options=="mixtral":
-            self.create_llamacpp_generator(model_name="mistral-7b-instruct-v0.2.Q4_K_M.gguf")
+        self.create_llamacpp_generator()
 
         self.pipeline.add_component(name="generator",instance=self.generator)
 
         self.pipeline.connect(sender="generator_prompt_builder.prompt",receiver="generator.context")
 
-    def create_llamacpp_generator(self,model_name="mistral-7b-instruct-v0.2.Q4_K_M.gguf"):
-        self.generator=LCGenerator(model_name=model_name)
+    def create_llamacpp_generator(self):
+        self.generator=LCGenerator(model_name=self.model_name)
     
     def create_answer_component(self):
         self.answer_builder=AnswerBuilder()

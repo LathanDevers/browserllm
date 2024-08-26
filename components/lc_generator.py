@@ -5,7 +5,7 @@ from typing import List
 
 @component
 class LCGenerator:
-    def __init__(self, model_name="mistral-7b-instruct-v0.2.Q4_K_M.gguf"):
+    def __init__(self, model_name="./models/mistral-7b-instruct-v0.2.Q4_K_M.gguf"):
         self.generator=LlamaCppGenerator(model=model_name,n_ctx=32768,n_batch=128, model_kwargs={"n_gpu_layers": 32},generation_kwargs={"temperature": 0.1})
         self.generator.warm_up()
 

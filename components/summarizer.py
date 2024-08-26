@@ -6,7 +6,8 @@ from haystack import Pipeline
 
 @component
 class Summarizer:
-    def __init__(self):
+    def __init__(self,model_name="./models/mistral-7b-instruct-v0.2.Q4_K_M.gguf"):
+        self.model_name=model_name
         self.create_pipeline()
 
         self.summarized_documents_list=[]
@@ -26,7 +27,7 @@ class Summarizer:
         """
         self.prompt_builder=PromptBuilder(template=prompt_template)
 
-        self.generator=LCGenerator()
+        self.generator=LCGenerator(model_name=self.model_name)
 
         self.pipeline.add_component(name="prompt_builder",instance=self.prompt_builder)
         self.pipeline.add_component(name="generator",instance=self.generator)
